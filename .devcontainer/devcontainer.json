@@ -1,0 +1,53 @@
+{
+  "name": "Lightweight LaTeX Project",
+  "image": "qmcgaw/latexdevcontainer:latest",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "James-Yu.latex-workshop",
+        "eamodio.gitlens"
+      ],
+      "settings": {
+        "remote.autoForwardPorts": false,
+        "latex-workshop.docker.enabled": false,
+        "latex-workshop.latex.autoBuild.run": "never",
+        "files.autoSave": "off",
+        "latex-workshop.view.pdf.viewer": "tab",
+        "latex-workshop.latex.outDir": ".tmp",
+        "latex-workshop.latex.recipes": [
+          {
+            "name": "latexmk_and_copy",
+            "tools": [
+              "latexmk",
+              "copy_pdf"
+            ]
+          }
+        ],
+        "latex-workshop.latex.tools": [
+          {
+            "name": "latexmk",
+            "command": "latexmk",
+            "args": [
+              "-pdf",
+              "-f",
+              "-interaction=nonstopmode",
+              "-synctex=1",
+              "-outdir=.tmp",
+              "%DOC%"
+            ]
+          },
+          {
+            "name": "copy_pdf",
+            "command": "cp",
+            "args": [
+              ".tmp/%DOCFILE%.pdf",
+              "./%DOCFILE%.pdf"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "postCreateCommand": "tlmgr update --self && if [ -f tex-packages.txt ]; then tlmgr install $(cat tex-packages.txt); fi",
+  "postStartCommand": "rm -rf .tmp"
+}

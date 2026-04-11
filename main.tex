@@ -1,0 +1,67 @@
+\documentclass{article}
+
+% --- Load the arXiv style ---
+\usepackage{arxiv}
+
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc}    
+\usepackage{hyperref}       
+\usepackage{url}            
+\usepackage{booktabs}       
+\usepackage{amsfonts}       
+\usepackage{nicefrac}       
+\usepackage{microtype}      
+\usepackage{cleveref}       
+\usepackage{graphicx}
+\usepackage{natbib}         
+\usepackage{doi}
+
+% --- Configuration ---
+\graphicspath{{figures/}} 
+
+% --- Meta Data ---
+\title{Advanced Numerical Methods for Partial Differential Equations}
+
+\author{
+  % FIXED: Corrected the braces and simplified the image call to stop the "ID" text error
+  \href{https://orcid.org/0000-0000-0000-0000}{\includegraphics[scale=0.06]{ocid.jpg}} \hspace{1mm}Ajeet Kumar Bhardwaj\thanks{Corresponding author.} \\
+  Department of Applied Mathematics\\
+  Your University Name\\
+  City, State, Zip \\
+  \texttt{your.email@university.edu} \\
+  \And
+  Co-Author Name \\
+  Department of Physics\\
+  Another University\\
+  City, State, Zip \\
+  \texttt{coauthor@university.edu} \\
+}
+
+\renewcommand{\shorttitle}{Advanced Numerical Methods}
+
+\hypersetup{
+  pdftitle={Advanced Numerical Methods for Partial Differential Equations},
+  pdfsubject={math.NA},
+  pdfauthor={Ajeet KB, Co-Author},
+  pdfkeywords={Numerical Methods, PDEs, Discrete Geometry},
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+    \input{sections/00-abstract}
+\end{abstract}
+
+\keywords{Numerical Methods \and PDEs \and Discrete Geometry}
+
+% --- Document Body ---
+\input{sections/01-introduction}
+\input{sections/02-methodology}
+\input{sections/03-results}
+
+% --- Bibliography ---
+\bibliographystyle{unsrtnat}
+\bibliography{bib/references} 
+
+\end{document}
