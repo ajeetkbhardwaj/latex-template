@@ -13,14 +13,14 @@ Writing research papers in LaTeX has one persistent problem: every collaborator 
 3. [Project Structure](#3-project-structure)
 4. [The Dev Container: `.devcontainer/devcontainer.json`](#4-the-dev-container-devcontainerjson)
    - [Base Image](#41-base-image)
-   - [VSCode Extensions & Settings](#42-vscode-extensions--settings)
+   - [VSCode Extensions &amp; Settings](#42-vscode-extensions--settings)
    - [The Two-Tool Recipe: `latexmk` + `copy_pdf`](#43-the-two-tool-recipe-latexmk--copy_pdf)
    - [Lifecycle Hooks](#44-lifecycle-hooks)
 5. [Package Management: `tex-packages.txt`](#5-package-management-tex-packagestxt)
 6. [The Root Document: `main.tex`](#6-the-root-document-maintex)
    - [Package Stack Explained](#61-package-stack-explained)
-   - [Author & Metadata Block](#62-author--metadata-block)
-   - [Document Body & Input Structure](#63-document-body--input-structure)
+   - [Author &amp; Metadata Block](#62-author--metadata-block)
+   - [Document Body &amp; Input Structure](#63-document-body--input-structure)
 7. [The Style Engine: `arxiv.sty`](#7-the-style-engine-arxivsty)
    - [Page Geometry](#71-page-geometry)
    - [Running Headers with fancyhdr](#72-running-headers-with-fancyhdr)
@@ -38,13 +38,14 @@ Writing research papers in LaTeX has one persistent problem: every collaborator 
 
 Academic LaTeX setups suffer from three chronic issues:
 
-| Problem | Symptom | Root Cause |
-|---|---|---|
-| **Environment Drift** | `! LaTeX Error: File 'cleveref.sty' not found` | Different TeX Live versions per machine |
-| **Junk File Pollution** | `.aux`, `.log`, `.out` files everywhere in git | No output directory isolation |
-| **Auto-compile Slowness** | Editor freezes during large documents | Auto-build on every keystroke |
+| Problem                         | Symptom                                              | Root Cause                              |
+| ------------------------------- | ---------------------------------------------------- | --------------------------------------- |
+| **Environment Drift**     | `! LaTeX Error: File 'cleveref.sty' not found`     | Different TeX Live versions per machine |
+| **Junk File Pollution**   | `.aux`, `.log`, `.out` files everywhere in git | No output directory isolation           |
+| **Auto-compile Slowness** | Editor freezes during large documents                | Auto-build on every keystroke           |
 
 This project addresses all three:
+
 - **Docker** locks the TeX Live version across all machines.
 - **`.tmp/` output dir** keeps auxiliary files out of the working tree.
 - **Manual compilation** (`autoBuild.run: "never"`) keeps the editor responsive.
@@ -53,35 +54,37 @@ This project addresses all three:
 
 ## 2. System Architecture
 
-```
-┌──────────────────────────────────────────────────────┐
-│                 Your Local Machine                    │
-│                                                      │
-│  ┌─────────────┐      ┌──────────────────────────┐  │
-│  │   VSCode    │◄────►│  Docker Dev Container     │  │
-│  │             │      │  (qmcgaw/latexdevcontainer│  │
-│  │  LaTeX      │      │   TeX Live 2026           │  │
-│  │  Workshop   │      │   latexmk, tlmgr          │  │
-│  │  GitLens    │      │   BibTeX, synctex         │  │
-│  └─────────────┘      └──────────────────────────┘  │
-│         │                          │                  │
-│         ▼                          ▼                  │
-│    Edit .tex files           Compile to PDF           │
-│    in sections/              output → .tmp/           │
-│                              copy → main.pdf          │
-└──────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    classDef ide fill:#0984e3,stroke:#74b9ff,stroke-width:2px,color:#ffffff;
+    classDef container fill:#00b894,stroke:#55efc4,stroke-width:2px,color:#ffffff;
+    classDef action fill:#fdcb6e,stroke:#ffeaa7,stroke-width:2px,color:#2d3436;
+
+    subgraph Your_Local_Machine
+        VSC["VSCode<br>────────<br>• LaTeX Workshop<br>• GitLens"]:::ide
+        Doc["Docker Dev Container<br>(qmcgaw/latexdevcontainer)<br>────────<br>• TeX Live 2026<br>• latexmk, tlmgr<br>• BibTeX, synctex"]:::container
+  
+        Edit["Edit .tex files<br>in sections/"]:::action
+        Compile["Compile to PDF<br>────────<br>output → .tmp/<br>copy → main.pdf"]:::action
+    end
+
+    VSC <-->|"Volume Mount / RPC"| Doc
+    VSC --> Edit
+    Doc --> Compile
+  
+    style Your_Local_Machine fill:#fdfdfd,stroke:#b2bec3,stroke-width:2px,color:#2d3436
 ```
 
 **Component roles:**
 
-| Component | Role |
-|---|---|
-| **Docker** | Isolates TeX Live — no local installation needed |
-| **`qmcgaw/latexdevcontainer`** | Pre-built image with full TeX Live + latexmk |
-| **VSCode Dev Containers** | Tunnels your editor into the container filesystem |
-| **LaTeX Workshop** | Handles keyboard-triggered compilation and PDF preview |
-| **`tlmgr`** | TeX Live package manager — installs from `tex-packages.txt` |
-| **GitLens** | Co-author collaboration and blame tracking |
+| Component                              | Role                                                           |
+| -------------------------------------- | -------------------------------------------------------------- |
+| **Docker**                       | Isolates TeX Live — no local installation needed              |
+| **`qmcgaw/latexdevcontainer`** | Pre-built image with full TeX Live + latexmk                   |
+| **VSCode Dev Containers**        | Tunnels your editor into the container filesystem              |
+| **LaTeX Workshop**               | Handles keyboard-triggered compilation and PDF preview         |
+| **`tlmgr`**                    | TeX Live package manager — installs from `tex-packages.txt` |
+| **GitLens**                      | Co-author collaboration and blame tracking                     |
 
 ---
 
@@ -131,6 +134,7 @@ This single JSON file is the heart of the entire system. It tells VSCode exactly
 ```
 
 `qmcgaw/latexdevcontainer` is a purpose-built Docker image containing:
+
 - **TeX Live** (full distribution)
 - **latexmk** — a Perl-based build tool that runs pdflatex/bibtex the right number of times automatically
 - **synctex** — enables click-to-source navigation between PDF and `.tex` file
@@ -222,12 +226,14 @@ Since `latexmk` sends output to `.tmp/`, the final PDF would be buried there. Th
 ```
 
 **`postCreateCommand`** — runs once when the container is first created:
+
 1. Updates `tlmgr` itself
 2. Reads `tex-packages.txt` and installs every package listed
 
 This means adding a package is as simple as adding its name to `tex-packages.txt` and rebuilding the container — no `sudo tlmgr install` magic required.
 
 **`postStartCommand`** — runs every time the container starts:
+
 - Cleans the `.tmp/` directory, ensuring every compilation starts fresh
 
 ---
@@ -260,20 +266,20 @@ tlmgr install $(cat tex-packages.txt)
 
 **What each package does:**
 
-| Package | Purpose |
-|---|---|
-| `amsmath` / `amsfonts` | Mathematical symbols, environments (`align`, `equation`) |
-| `graphicx` | `\includegraphics{}` for figures |
-| `hyperref` | Clickable links, PDF metadata (`pdftitle`, `pdfauthor`) |
-| `geometry` | Page margins and layout |
-| `fancyhdr` | Custom running headers and footers |
-| `booktabs` | Professional-quality tables (`\toprule`, `\midrule`, `\bottomrule`) |
-| `microtype` | Subtle kerning and font expansion for better typography |
-| `cleveref` | Smart cross-references: `\cref{fig:1}` → "Figure 1" automatically |
-| `natbib` | Author-year citation styles (`\citep{}`, `\citet{}`) |
-| `doi` | Clickable DOI links in bibliography |
-| `times` | Times New Roman font (matches arXiv preprint style) |
-| `units` | Consistent formatting for physical units |
+| Package                    | Purpose                                                                   |
+| -------------------------- | ------------------------------------------------------------------------- |
+| `amsmath` / `amsfonts` | Mathematical symbols, environments (`align`, `equation`)              |
+| `graphicx`               | `\includegraphics{}` for figures                                        |
+| `hyperref`               | Clickable links, PDF metadata (`pdftitle`, `pdfauthor`)               |
+| `geometry`               | Page margins and layout                                                   |
+| `fancyhdr`               | Custom running headers and footers                                        |
+| `booktabs`               | Professional-quality tables (`\toprule`, `\midrule`, `\bottomrule`) |
+| `microtype`              | Subtle kerning and font expansion for better typography                   |
+| `cleveref`               | Smart cross-references:`\cref{fig:1}` → "Figure 1" automatically       |
+| `natbib`                 | Author-year citation styles (`\citep{}`, `\citet{}`)                  |
+| `doi`                    | Clickable DOI links in bibliography                                       |
+| `times`                  | Times New Roman font (matches arXiv preprint style)                       |
+| `units`                  | Consistent formatting for physical units                                  |
 
 ---
 
@@ -338,6 +344,7 @@ The **load order matters**. `hyperref` must come after most other packages but b
 ```
 
 Key points:
+
 - **`\And`** separates multiple authors in the arXiv style (single line) — `\AND` forces a line break between author groups.
 - **`\thanks{}`** creates a footnote — used for corresponding author markers.
 - **`\shorttitle`** populates the running header on subsequent pages (defined in `arxiv.sty`).
@@ -494,12 +501,15 @@ Font sizes are explicitly redefined to match arXiv's compact style:
 Each section file is a standalone LaTeX fragment:
 
 **`sections/00-abstract.tex`**
+
 ```latex
 This is the abstract for the preprint. It summarizes the research findings and methodology.
 ```
+
 No `\begin{abstract}` — that wrapper lives in `main.tex`. The section file is just the prose.
 
 **`sections/01-introduction.tex`**
+
 ```latex
 \section{Introduction}
 \label{sec:intro}
@@ -510,6 +520,7 @@ to manually compile your document.
 ```
 
 **Cross-referencing between sections:**
+
 ```latex
 % In 02-methodology.tex
 As described in \cref{sec:intro}, the problem is well-posed.
@@ -528,6 +539,7 @@ As shown in \cref{fig:convergence}, the method converges at order $\mathcal{O}(h
 `\cref{}` from the `cleveref` package automatically prepends "Figure", "Section", "Table", etc., based on the label prefix — no manual "Figure~\ref{}" needed.
 
 **Citations:**
+
 ```latex
 % bib/references.bib
 @article{smith2023,
@@ -570,6 +582,7 @@ Final: main.pdf in project root ✓
 **Why 3 pdflatex passes?**
 
 LaTeX resolves references in two phases:
+
 - **Pass 1**: Writes label positions to `.aux`
 - **Pass 2** (after bibtex): Inserts bibliography numbers
 - **Pass 3**: Uses updated `.aux` to correctly number all `\ref{}` and `\cref{}` calls
