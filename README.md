@@ -76,11 +76,13 @@ Before starting, ensure you have the following installed on your machine:
 ***
 
 ### 2. Initialization
+**Fork with your title**
+First Visit the our repos : [https://](https://github.com/ajeetkbhardwaj/latex-template/) and click onto the up right side to fork the repository.
 
 **Clone the Repository:**
 ```bash
-git clone https://github.com/your-username/your-research-paper.git
-cd your-research-paper
+git clone https://github.com/your-username/latex-template.git
+cd latex-template
 ```
 
 **Open in VS Code:**
