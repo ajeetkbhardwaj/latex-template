@@ -77,7 +77,7 @@ Before starting, ensure you have the following installed on your machine:
 
 ### 2. Initialization
 **Fork with your title**
-First Visit the our repos : [https://](https://github.com/ajeetkbhardwaj/latex-template/) and click onto the up right side to fork the repository.
+First Visit the our repos : [https://github.com/ajeetkbhardwaj/latex-template/](https://github.com/ajeetkbhardwaj/latex-template/) and click onto the up right side to fork the repository.
 
 **Clone the Repository:**
 ```bash
